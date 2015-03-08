@@ -1,7 +1,5 @@
 ### Generic interface ###
 
-using .Libc: mmap, munmap
-
 # Arrays
 mmap_array{T,N}(::Type{T}, dims::NTuple{N,Integer}, s::IO) = mmap_array(T, dims, s, position(s))
 
@@ -35,7 +33,7 @@ function mmap_grow(len::Integer, prot::Integer, flags::Integer, fd::Integer, off
     end
     cpos = ccall(:jl_lseek, FileOffset, (Cint, FileOffset, Cint), fd, cpos, SEEK_SET)
     systemerror("lseek", cpos < 0)
-    return mmap(len, prot, flags, fd, offset)
+    return Libc.mmap(len, prot, flags, fd, offset)
 end
 
 # Determine a stream's read/write mode, and return prot & flags
@@ -73,10 +71,10 @@ function mmap_array{T,N}(::Type{T}, dims::NTuple{N,Integer}, s::IO, offset::File
     if iswrite && grow
         pmap, delta = mmap_grow(len, prot, flags, fd(s), offset)
     else
-        pmap, delta = mmap(len, prot, flags, fd(s), offset)
+        pmap, delta = Libc.mmap(len, prot, flags, fd(s), offset)
     end
     A = pointer_to_array(convert(Ptr{T}, uint(pmap)+delta), dims)
-    finalizer(A,x->munmap(pmap,len+delta))
+    finalizer(A,x->Libc.munmap(pmap,len+delta))
     return A
 end
 
@@ -138,7 +136,7 @@ function mmap_array{T,N}(::Type{T}, dims::NTuple{N,Integer}, s::Union(IO,SharedM
         error("could not create mapping view: $(FormatMessage())")
     end
     A = pointer_to_array(convert(Ptr{T}, viewhandle+offset-offset_page), dims)
-    finalizer(A, x->munmap(viewhandle, mmaphandle))
+    finalizer(A, x->Libc.munmap(viewhandle, mmaphandle))
     return A
 end
 
