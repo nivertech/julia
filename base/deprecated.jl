@@ -294,6 +294,9 @@ const base64 = base64encode
 # 10314
 @deprecate filter!(r::Regex, d::Dict) filter!((k,v)->ismatch(r,k), d)
 
+@deprecate flipud(A::AbstractArray) flipdim(A, 1)
+@deprecate fliplr(A::AbstractArray) flipdim(A, 2)
+
 # 0.4 discontinued functions
 
 @noinline function subtypetree(x::DataType, level=-1)

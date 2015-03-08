@@ -518,9 +518,6 @@ function flipdim(A::AbstractArray, d::Integer)
     return B
 end
 
-flipud(A::AbstractArray) = flipdim(A, 1)
-fliplr(A::AbstractArray) = flipdim(A, 2)
-
 circshift(a::AbstractArray, shiftamt::Real) = circshift(a, [integer(shiftamt)])
 function circshift{T,N}(a::AbstractArray{T,N}, shiftamts)
     I = ()
